@@ -30,12 +30,12 @@ for nbcores in nb_core:
 
         for repeat in repeats:
 
-            args = ("./reduce", "-C", str(nbcores), "-N", str(nsteps))
+            args = ("./Executables/reduce.o", "-C", str(nbcores), "-N", str(nsteps))
             popen = subprocess.Popen(args, stdout=subprocess.PIPE)
             popen.wait()
             reduced[nbcores][nsteps] += [popen.stdout.read()]
 
-            args = ("./divided", "-C", str(nbcores), "-N", str(nsteps))
+            args = ("./Executables/divided.o", "-C", str(nbcores), "-N", str(nsteps))
             popen = subprocess.Popen(args, stdout=subprocess.PIPE)
             popen.wait()
             divided[nbcores][nsteps] += [popen.stdout.read()]

@@ -1,5 +1,13 @@
 PART1_SRC=Part1
+PART2_SRC=Part2
 BIN=Executables
+
+#Compiling windows/linux
+GCC=x86_64-w64-mingw32-g++
+#GCC=g++
+
+LIBS=-static-libstdc++ -static-libgcc
+
 
 main : Part1
 	@echo Done
@@ -8,15 +16,16 @@ Part1 : $(BIN)/naive.o $(BIN)/reduce.o $(BIN)/atomic.o $(BIN)/divided.o
 	@echo Part1 Compiled
 
 $(BIN)/naive.o: $(PART1_SRC)/tp_openmp_part_1_pi.cpp
-	g++ -o $(BIN)/naive.o $(PART1_SRC)/tp_openmp_part_1_pi.cpp -fopenmp -O3 -g -march=native
+	$(GCC) -o $(BIN)/naive.o $(PART1_SRC)/tp_openmp_part_1_pi.cpp -fopenmp -O3 $(LIBS) -g -march=native
 $(BIN)/reduce.o: $(PART1_SRC)/tp_openmp_part_1_pi_impl_reduce.cpp
-	g++ -o $(BIN)/reduce.o $(PART1_SRC)/tp_openmp_part_1_pi_impl_reduce.cpp -fopenmp -O3 -g -march=native
+	$(GCC) -o $(BIN)/reduce.o $(PART1_SRC)/tp_openmp_part_1_pi_impl_reduce.cpp -fopenmp $(LIBS) -O3 -g -march=native
 $(BIN)/atomic.o: $(PART1_SRC)/tp_openmp_part_1_pi_impl_atomic.cpp
-	g++ -o $(BIN)/atomic.o $(PART1_SRC)/tp_openmp_part_1_pi_impl_atomic.cpp -fopenmp -O3 -g -march=native
+	$(GCC) -o $(BIN)/atomic.o $(PART1_SRC)/tp_openmp_part_1_pi_impl_atomic.cpp -fopenmp $(LIBS) -O3 -g -march=native
 $(BIN)/divided.o: $(PART1_SRC)/tp_openmp_part_1_pi_impl_divided.cpp
-	g++ -o $(BIN)/divided.o $(PART1_SRC)/tp_openmp_part_1_pi_impl_divided.cpp -fopenmp -O3 -g -march=native
+	$(GCC) -o $(BIN)/divided.o $(PART1_SRC)/tp_openmp_part_1_pi_impl_divided.cpp -fopenmp $(LIBS) -O3 -g -march=native
 
+Part2 : $(BIN)/vector.o
+	@echo Part2 Compiled
 
-
-vector: 
-	g++ -o vector tp_openmp_part_2_vector.cpp -fopenmp -O3 -g -march=native
+$(BIN)/vector.o: $(PART2_SRC)/tp_openmp_part_2_vector.cpp
+	$(GCC) -o $(BIN)/vector_seq.o $(PART2_SRC)/tp_openmp_part_2_vector.cpp -fopenmp $(LIBS) -O3 -g -march=native

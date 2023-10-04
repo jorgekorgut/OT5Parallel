@@ -48,6 +48,7 @@
 #include <sys/time.h>
 #include <iostream>
 #include <cmath>
+#include <float.h>
 
 void checkSizes( int &N, int &M, int &S, int &nrepeat );
 
@@ -56,7 +57,7 @@ int main( int argc, char* argv[] )
   int N = -1;         // number of rows 2^12
   int M = -1;         // number of columns 2^10
   int S = -1;         // total size 2^22
-  int nrepeat = 100;  // number of repeats of the test
+  int nrepeat = 1;  // number of repeats of the test
 
   // Read command line arguments.
   for ( int i = 0; i < argc; i++ ) {
@@ -90,10 +91,12 @@ int main( int argc, char* argv[] )
   checkSizes( N, M, S, nrepeat );
 
   // Allocate x,y,A
-  #define VariableType _Float32
-  #define VariableTypePlus _Float32
+  #define VariableType float
+  #define VariableTypePlus float
 
+  // N : number of rows
   auto y = new VariableTypePlus[N];
+  // N : number of Columns
   auto x = new VariableType[M];
   auto A = new VariableType[N*M];
 
@@ -139,12 +142,6 @@ int main( int argc, char* argv[] )
       result += y[i];
     }
 
-    // For each line i
-        // Multiply the i lines with the vector x 
-        // Sum the results of the previous step into a single variable
-        // Multiply the result of the previous step with the i value of vector y
-        // Sum the results of the previous step into a single variable (result)
-
     // Output result.
     if ( repeat == ( nrepeat - 1 ) ) {
       fprintf(stderr, "  Computed result for %d x %d is %lf\n", N, M, result );
@@ -175,7 +172,7 @@ int main( int argc, char* argv[] )
   fprintf(stderr, "  N( %d ) M( %d ) nrepeat ( %d ) problem( %g MB ) time( %g s ) bandwidth( %g GB/s )\n",
           N, M, nrepeat, Gbytes * 1000, time, Gbytes * nrepeat / time );
 
-  std::cout << time << std::endl;
+  std::cout << time;
 
   std::free(A);
   std::free(y);
