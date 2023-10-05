@@ -3,8 +3,8 @@ PART2_SRC=Part2
 BIN=Executables
 
 #Compiling windows/linux
-#GCC=x86_64-w64-mingw32-g++
-GCC=g++
+GCC=x86_64-w64-mingw32-g++
+#GCC=g++
 
 LIBS=-static-libstdc++ -static-libgcc -lgomp -static
 

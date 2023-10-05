@@ -59,5 +59,8 @@
   "files.associations": {
     "numeric": "cpp",
     "functional": "cpp"
-  }
+  },
+  "cSpell.words": [
+    "l'algorithme"
+  ]
 }
