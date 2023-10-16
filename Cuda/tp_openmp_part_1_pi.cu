@@ -11,9 +11,6 @@ History: Written by Tim Mattson, 11/1999.
          Modified/extended by Jonathan Rouzaud-Cornabas, 10/2022
 */
 
-double calculatePi(int num_steps);
-double calculatePartialPi(int a, int b);
-
 #include <limits>
 #include <cstdio>
 #include <cstdlib>
@@ -21,8 +18,13 @@ double calculatePartialPi(int a, int b);
 #include <sys/time.h>
 #include <algorithm>
 
+__global__
+void calculatePi(double* pi, double step, int num_steps, int threadSize);
+
+__device__ 
+double calculatePartialPi(int a, int b, double step, int num_steps);
+
 static long num_steps = 1e8;
-double step;
 
 int main (int argc, char** argv)
 {
@@ -40,14 +42,29 @@ int main (int argc, char** argv)
         }
       }
 	  
-    step = 1.0/(double) num_steps;
+    double step = 1.0/(double) num_steps;
 
     // Timer products.
     struct timeval begin, end;
 
     gettimeofday( &begin, NULL );
     
-    double pi = calculatePi(num_steps);
+    int size =sizeof(double);
+    double * h_sum = (double*)malloc(size);
+    *h_sum = 0;
+    double * d_sum;
+    cudaMalloc(&d_sum, size);
+    cudaMemcpy(d_sum, h_sum, size, cudaMemcpyHostToDevice);
+
+    int num_blocks = 64;
+    int threadSize = num_steps/num_blocks + 1;
+
+    calculatePi<<<num_blocks,1>>>(d_sum, step, num_steps, threadSize);
+
+    //cudaDeviceSynchronize();
+    cudaMemcpy(h_sum, d_sum, size, cudaMemcpyDeviceToHost);
+
+    double pi = step * (*h_sum);
 	  
     gettimeofday( &end, NULL );
 
@@ -58,27 +75,28 @@ int main (int argc, char** argv)
     printf("\n pi with %ld steps is %lf in %lf seconds\n ",num_steps,pi,time);
 }
 
-double calculatePi(int num_steps)
+__global__
+void calculatePi(double* sum, double step, int num_steps, int threadSize)
 {
-  int num_threads = 64;
-  int threadSize = 8;
-
-  double sum = 0.0;
-  int i;
-  for (i=1;i<= num_steps; i+=threadSize){
-		  sum += calculatePartialPi(i,std::min(i+threadSize,num_steps));
-	}
-
-  return step * sum;
+  int i = blockIdx.x * threadSize + 1;
+  
+  double partialSum = calculatePartialPi(i,i+threadSize, step, num_steps);
+  
+  atomicAdd(sum,partialSum);
+  
 }
 
-double calculatePartialPi(int a, int b)
+__device__  
+double calculatePartialPi(int a, int b, double step, int num_steps)
 {
+  
   double x, sum = 0;
   int i;
-  for(i=a; i<b ; i++){
+  for(i=a; i<b && i < num_steps ; i++){
       x = (i-0.5)*step;
+      
 		  sum = sum + 4.0/(1.0+x*x);
   }
+  
   return sum;
 }
