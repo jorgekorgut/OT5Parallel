@@ -1,7 +1,7 @@
 # OT5 : Calcul parallèl
 
 ## Membres
-Mario
+Mario  
 Jorge KORGUT Junior
 
 ## Architecture du projet
