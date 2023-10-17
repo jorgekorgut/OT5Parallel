@@ -57,10 +57,12 @@ int main (int argc, char** argv)
     cudaMemcpy(d_sum, h_sum, size, cudaMemcpyHostToDevice);
 
     int num_blocks = 1024;
-    int threadSize = num_steps/num_blocks + 1;
-    int num_threads = 4;
+    
+    int num_threads = 32;
 
-    calculatePi<<<num_blocks,num_threads>>>(d_sum, step, num_steps, threadSize, num_threads);
+    int numStepsInThread = num_steps/num_blocks/num_threads + 1;
+
+    calculatePi<<<num_blocks,num_threads,num_threads * sizeof(float)>>>(d_sum, step, num_steps, numStepsInThread, num_threads);
 
     //cudaDeviceSynchronize();
     cudaMemcpy(h_sum, d_sum, size, cudaMemcpyDeviceToHost);
@@ -76,16 +78,34 @@ int main (int argc, char** argv)
     printf("\n pi with %ld steps is %lf in %lf seconds\n ",num_steps,pi,time);
 }
 
-extern __shared__ double local_sum[num_steps/2+1];
-
 __global__
-void calculatePi(double* sum, double step, int num_steps, int threadSize, int num_threads)
+void calculatePi(double* sum, double step, int num_steps, int numStepsInThread, int num_threads)
 {
-  int i = (blockIdx.x*num_threads + threadIdx.x) * threadSize + 1;
+  //int numberOfThreadInGrid = blockDim.x * gridDim.x;
+  //int numberOfThreadsInBlock = blockDim.x;
+  extern __shared__ double local_sum[];
 
-  double partialSum = calculatePartialPi(i,i+threadSize, step, num_steps);
+  int i = (blockIdx.x*num_threads + threadIdx.x) * numStepsInThread + 1;
   
-  atomicAdd(sum,partialSum);
+  double partialSum = calculatePartialPi(i,i+numStepsInThread, step, num_steps);
+
+  local_sum[threadIdx.x] = partialSum;
+
+  __syncthreads();
+
+  //Reduction of blocks
+  for(int j = 1; j < blockDim.x; j*=2){
+    if(threadIdx.x%(2*j)==0){
+      local_sum[threadIdx.x] += local_sum[threadIdx.x + j];
+    }
+    
+    __syncthreads();
+  }
+
+  if(threadIdx.x ==0){
+    printf("%lf\n", local_sum[0]);
+    atomicAdd(sum, local_sum[0]);
+  }
 }
 
 __device__  

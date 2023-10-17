@@ -17,7 +17,7 @@ main : Part1 Part2 Cuda
 
 Part1 : $(BIN)/naive.o $(BIN)/reduce.o $(BIN)/atomic.o $(BIN)/divided.o
 	@echo Part1 Compiled
-
+ 
 $(BIN)/naive.o: $(PART1_SRC)/tp_openmp_part_1_pi.cpp
 	$(GCC) -o $(BIN)/naive.o $(PART1_SRC)/tp_openmp_part_1_pi.cpp -fopenmp -O3 $(LIBS) -g -march=native
 $(BIN)/reduce.o: $(PART1_SRC)/tp_openmp_part_1_pi_impl_reduce.cpp
@@ -42,10 +42,10 @@ $(BIN)/vector_simd.o: $(PART2_SRC)/tp_openmp_part_2_vector_simd.cpp
 Cuda : $(BIN)/cuda_pi.o $(BIN)/cuda_pi_reduction.o
 
 $(BIN)/cuda_pi.o: $(CUDA_SRC)/tp_openmp_part_1_pi.cu
-	$(GCC) -o $(BIN)/cuda_pi.o $(CUDA_SRC)/tp_openmp_part_1_pi.cu -O3 $(LIBS) -g
+	$(GCC) -o $(BIN)/cuda_pi.o $(CUDA_SRC)/tp_openmp_part_1_pi.cu -O3 $(LIBS) 
 
 $(BIN)/cuda_pi_reduction.o: $(CUDA_SRC)/tp_openmp_part_1_pi_reduction.cu
-	$(GCC) -o $(BIN)/cuda_pi_reduction.o $(CUDA_SRC)/tp_openmp_part_1_pi_reduction.cu -O3 $(LIBS) -g
+	$(GCC) -o $(BIN)/cuda_pi_reduction.o $(CUDA_SRC)/tp_openmp_part_1_pi_reduction.cu -O2 $(LIBS) -G
 
 $(BIN)/cuda_pi_full_reduction.o: $(CUDA_SRC)/tp_openmp_part_1_pi_full_reduction.cu
-	$(GCC) -o $(BIN)/cuda_pi_full_reduction.o $(CUDA_SRC)/tp_openmp_part_1_pi_full_reduction.cu -O3 $(LIBS) -g
+	$(GCC) -o $(BIN)/cuda_pi_full_reduction.o $(CUDA_SRC)/tp_openmp_part_1_pi_full_reduction.cu -O3 $(LIBS) 
