@@ -179,10 +179,11 @@ void calculatePi(double* sum, double * block_sum, double step, int num_steps, in
 
   //Reduction of threads
   for(int j = 1; j < blockDim.x; j*=2){
-    if(threadIdx.x%(2*j)==0){
-      thread_sum[threadIdx.x] += thread_sum[threadIdx.x + j];
+    int index = 2 * j * threadIdx.x;
+    if(index < blockDim.x){
+      thread_sum[index] += thread_sum[index + j];
     }
-    
+
     __syncthreads();
   }
 
@@ -202,15 +203,15 @@ void reduceBlocks(double * sum, double * block_sum){
 
   //Reduction of blocks
   for(int j = 1; j < blockDim.x; j*=2){
-    if(threadIdx.x%(2*j)==0){
-      thread_sum_2[threadIdx.x] += thread_sum_2[threadIdx.x + j];
+    int index = 2 * j * threadIdx.x;
+    if(index < blockDim.x){
+      thread_sum_2[index] += thread_sum_2[index + j];
     }
-    
+
     __syncthreads();
   }
 
   if(threadIdx.x == 0){
-    
     *sum = thread_sum_2[0];
     //printf("%lf\n", block_sum[blockIdx.x]);
   }
