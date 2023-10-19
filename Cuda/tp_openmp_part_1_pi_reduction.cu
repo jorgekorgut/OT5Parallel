@@ -24,6 +24,9 @@ History: Written by Tim Mattson, 11/1999.
 __global__
 void calculatePi(double* pi, double * block_sum, double step, int num_steps, int threadSize);
 
+__global__
+void reduceBlocks(double * pi, double * block_sum);
+
 __device__ 
 double calculatePartialPi(int a, int b, double step, int num_steps);
 
@@ -73,17 +76,24 @@ int main (int argc, char** argv)
     int numStepsInThread = num_steps/num_blocks/num_threads + 1;
 
     calculatePi<<<num_blocks,num_threads,num_threads>>>(d_sum,d_block_sum, step, num_steps, numStepsInThread);
+
+    reduceBlocks<<<1, num_blocks>>>(d_sum, d_block_sum);
     
     cudaMemcpy(h_sum, d_sum, doubleSize, cudaMemcpyDeviceToHost);
 
     cudaError_t error = cudaGetLastError();
-
-    const char * errorName = cudaGetErrorName(error);
-    const char * errorDescription = cudaGetErrorString(error);
-
-    //printf("%s : %s",errorName, errorDescription);
+      if(error){
+        const char * errorName = cudaGetErrorName(error);
+        const char * errorDescription = cudaGetErrorString(error);
+    
+        printf("%s : %s",errorName, errorDescription);
+      }
 
     double pi = step * (*h_sum);
+
+    cudaFree(d_sum);
+    cudaFree(d_block_sum);
+    free(h_sum);
 	  
     gettimeofday( &end, NULL );
 
@@ -167,7 +177,7 @@ void calculatePi(double* sum, double * block_sum, double step, int num_steps, in
 
   __syncthreads();
 
-  //Reduction of blocks
+  //Reduction of threads
   for(int j = 1; j < blockDim.x; j*=2){
     if(threadIdx.x%(2*j)==0){
       thread_sum[threadIdx.x] += thread_sum[threadIdx.x + j];
@@ -177,26 +187,33 @@ void calculatePi(double* sum, double * block_sum, double step, int num_steps, in
   }
 
   if(threadIdx.x == 0){
+    
     block_sum[blockIdx.x] = thread_sum[0];
     //printf("%lf\n", block_sum[blockIdx.x]);
   }
+}
+
+__global__
+void reduceBlocks(double * sum, double * block_sum){
+  extern __shared__ double thread_sum_2[1024];
+  
+  thread_sum_2[threadIdx.x] = block_sum[threadIdx.x];
   __syncthreads();
 
-  for(int j = 1; j < gridDim.x; j*=2){
-    if(threadIdx.x == 0){
-      if(blockIdx.x%(2*j)==0){
-        block_sum[blockIdx.x] += block_sum[blockIdx.x + j];
-      }
+  //Reduction of blocks
+  for(int j = 1; j < blockDim.x; j*=2){
+    if(threadIdx.x%(2*j)==0){
+      thread_sum_2[threadIdx.x] += thread_sum_2[threadIdx.x + j];
     }
-    //printf("b: %d - t:%d \n", blockIdx.x, threadIdx.x);
+    
     __syncthreads();
   }
-  __syncthreads();
-  if(threadIdx.x ==0 && 
-     blockIdx.x ==0){
-      *sum = 10;
+
+  if(threadIdx.x == 0){
+    
+    *sum = thread_sum_2[0];
+    //printf("%lf\n", block_sum[blockIdx.x]);
   }
-  
 }
 
 __device__  
