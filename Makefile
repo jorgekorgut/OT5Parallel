@@ -3,7 +3,7 @@ PART2_SRC=Part2
 CUDA_SRC=Cuda
 BIN=Executables
 
-#Compiling windows/linux
+#Compiling windows in linux
 #GCC=x86_64-w64-mingw32-g++
 GCC=g++
 NVCC=/usr/local/cuda-12.2/bin/nvcc
