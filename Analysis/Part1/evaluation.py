@@ -15,18 +15,21 @@ repeats = range(0,10)
 reduced = {}
 divided = {}
 atomic = {}
+sequence = {}
 
 
 for nbcores in nb_core:
     reduced[nbcores] = {}
     divided[nbcores] = {}
     atomic[nbcores] = {}
+    sequence[nbcores] = {}
     for nsteps in num_steps:
         ncore = 0
         print('Execution of ' + str(nsteps) + ' steps | cores ' + str(nbcores))
         reduced[nbcores][nsteps] = []
         divided[nbcores][nsteps] =[]
         atomic[nbcores][nsteps] = []
+        sequence[nbcores][nsteps] = []
 
         for repeat in repeats:
 
@@ -44,6 +47,11 @@ for nbcores in nb_core:
             popen = subprocess.Popen(args, stdout=subprocess.PIPE)
             popen.wait()
             atomic[nbcores][nsteps] += [popen.stdout.read()]
+
+            args = ("./Executables/naive.o", "-C", str(nbcores), "-N", str(nsteps))
+            popen = subprocess.Popen(args, stdout=subprocess.PIPE)
+            popen.wait()
+            sequence[nbcores][nsteps] += [popen.stdout.read()]
         
 
 with open('Analysis/Part1/stats.csv', 'w', newline='') as file:
@@ -56,3 +64,4 @@ with open('Analysis/Part1/stats.csv', 'w', newline='') as file:
                 writer.writerow(['reduce', ncores, nsteps, reduced[ncores][nsteps][repeat].decode('utf-8')])
                 writer.writerow(['divided', ncores, nsteps, divided[ncores][nsteps][repeat].decode('utf-8')])
                 writer.writerow(['atomic', ncores, nsteps, atomic[ncores][nsteps][repeat].decode('utf-8')])
+                writer.writerow(['sequence', ncores, nsteps, sequence[ncores][nsteps][repeat].decode('utf-8')])

@@ -1,7 +1,7 @@
 # OT5 : Calcul parallèl
 
 ## Membres
-MarioC ASTILLON
+Mario CASTILLON
 Jorge KORGUT Junior
 
 ## Architecture du projet
@@ -44,32 +44,35 @@ Dans le code fourni, il est facile à identifier le point d'optimisation. En eff
 
 En rajoutant le pragma suivant avant la boucle :
 ```c++
-    #pragma omp parallel for shared(sum) num_threads(num_cores)
+    #pragma omp parallel for num_threads(num_cores)
 ```
-Nous spécifions à openMP que la variable _**sum**_ sera partagé entre les threads et qui nous voudrions un num de threads égal à ce que l'on souhaite.
+Nous spécifions à openMP que nous voudrions un certain numero de threads.
 
 De plus on rajoute les mots clefs :
 ```c++
     #pragma omp atomic
 ```
-Pour éviter les cas des concurrences qui viennent afecter nos résultats.
+Pour éviter les cas des concurrences qui viennent attaquer nos résultats.
 
-![Alt text](Resources/)
+![Alt text](Resources/Part1_Seq_Atomic.png)
 _Comparaison du temps d'execution du programme en mode sequentiel et en mode parallèle atomique._ 
 
-En regardant plus attentivement notre algorithme et le mode de fonctionnement des atomiques sur OpenMP, nous nous rendons compte qu'une bonne partie du code est passé dans la gestion des verrous pour acceder les ressources critiques. Ainsi, parce que notre cas particulier nous permet, nous pouvons diminuer ce temps d'attente, en utilisant une arbre de réduction. Par chance, juste le changement des pragmas nous permet d'atteidre cet objectif.
+Les résultats peuvent paraître un peut surprennant. Cependant, en regardant plus attentivement notre algorithme et le mode de fonctionnement des atomiques sur OpenMP, nous nous rendons compte qu'une bonne partie du code est passé dans la gestion des verrous pour acceder les ressources critiques. Ce qui produit un resultat contre intuitive pour les programmeurs inexperimentés qui ne prennent pas en compte les intéractions des threads entre eux.
+
+Afin d'optimiser ce processus et parce que que notre cas particulier nous permet, nous pouvons diminuer ce temps d'attente entre les verrouiage des données, en utilisant une arbre de réduction. Par chance, juste le changement des pragmas nous permet d'atteidre cet objectif.
 ```c++
     #pragma omp parallel for reduction(+ : sum) num_threads(num_cores)
 ```
 
-![Alt text](Resources/)
-_Comparaison du temps d'execution du programme en mode parallel atomique et en mode parallèle en reduction._ 
+![Alt text](Resources/Part1_Seq_Reduce.png)
+_Comparaison du temps d'execution du programme en mode sequenciel et en mode parallèle en reduction._ 
 
 Un autre point d'optimisation est d'augmenter le temps d'execution de chaque thread afin de diminuer la quantité de branches dans l'arbre de réduction. En effet, si le temps d'execution de chaque thread est inférieur au temps pour faire une réduction, il est intéressant de regrouper les taches par thread afin que l'arbre à la fin soit moins dense. Cependant, il reste difficil d'identifier le temps exacte passé pour une réduction, ainsi un teste empirique a été éffectué pour desmistifier le sujet.
 
-![Alt text](Resources/)
+![Alt text](Resources/Part1_Reduce_Divided.png)
 _Comparaison du temps d'execution du programme en mode parallel en reduction et en mode parallèle en reduction fractionné._  
 
+En effet, nous n'avons pas constaté une augmentation dans le temps d'execution de l'algoritme en mode reduction et en mode reduction fractionné pour nos paramèttres d'entrée.
 
 ## Partie 2
 ![Alt text](Resources/Part2_Vect_seq.png)  
