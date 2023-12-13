@@ -1,7 +1,7 @@
 # OT5 : Calcul parallèl
 
 ## Membres
-_Mario CASTILLON_
+MarioC ASTILLON
 Jorge KORGUT Junior
 
 ## Architecture du projet
@@ -26,11 +26,51 @@ Jorge KORGUT Junior
 L'objectif de ce TP est d'utiliser concrètement les fonctionalités de parallelisation de la librairie OPENMP, prendre en main les outils d'analyse de performance comme Intel VTune Profiler et de se familiariser avec quelques cas classiques de parallelisation d'algorithmes.  
 Il est intéréssant de remarquer que les parallelisations que nous effectuerons ici ne seront pas optimales. En effet, si nous prennons l'example de la deuxième partie, les multiplications et sommes des matrices peuvent être beaucoup plus otimisés si des librairies spécifiques faites pour ce type de calcul sont utilisés.  
 
-Dans les tests de performance, nous exécutons chaque paramettrage 50 fois pour le tracage des graphiques.
+Pour l'obtention des données de performance, chaque algorithme a été executé 10 fois pour chaque paramettre spécifique. Comme par example le nombre de threads, taille des matrices, nombre d'itérations.
 
 ## Partie 1  
 
-Pour commencer, nous avons à disposition un algorithme d'approximation de PI et notre objectif est d'utiliser les anotations OpenMP afin de paralleliser la boucle critique.
+Dans le domaine de l'informatique et de la programmation, la recherche de méthodes efficaces pour le calcul de constantes mathématiques revêt une importance cruciale. Parmi ces constantes, le nombre π occupe une place prépondérante en raison de son omniprésence dans de nombreuses disciplines scientifiques et techniques.
+
+Pour le calculer nous avons repris le code de Tim Mattson qui a été modifié par Jonathan Rouzaud-Cornabas qui calcule une approximation de π par la résolution numérique de l'intégrale suivante :
+$\int_0^1 \frac{4}{(1+x^{2})} dx$  
+
+car :  
+$\int_0^1 \frac{4}{(1+x^{2})} dx = 4*(arctg(1) - arctg(0)) = 4*(\frac{π}{4} - (0)) = π$
+
+Il est intéressant de rémarquer que la correction de notre calcul est donc possible grâce à la connaissance en amond du résultat. Ce qui facilite le débuggage.
+
+Dans le code fourni, il est facile à identifier le point d'optimisation. En effet, comme l'algorithme consiste seulement d'une seule boucle et nous avons un algorithme en sequence, nous pouvons nous concentrer à essayer la paralellisation de cette boucle for. 
+
+En rajoutant le pragma suivant avant la boucle :
+```c++
+    #pragma omp parallel for shared(sum) num_threads(num_cores)
+```
+Nous spécifions à openMP que la variable _**sum**_ sera partagé entre les threads et qui nous voudrions un num de threads égal à ce que l'on souhaite.
+
+De plus on rajoute les mots clefs :
+```c++
+    #pragma omp atomic
+```
+Pour éviter les cas des concurrences qui viennent afecter nos résultats.
+
+![Alt text](Resources/)
+_Comparaison du temps d'execution du programme en mode sequentiel et en mode parallèle atomique._ 
+
+En regardant plus attentivement notre algorithme et le mode de fonctionnement des atomiques sur OpenMP, nous nous rendons compte qu'une bonne partie du code est passé dans la gestion des verrous pour acceder les ressources critiques. Ainsi, parce que notre cas particulier nous permet, nous pouvons diminuer ce temps d'attente, en utilisant une arbre de réduction. Par chance, juste le changement des pragmas nous permet d'atteidre cet objectif.
+```c++
+    #pragma omp parallel for reduction(+ : sum) num_threads(num_cores)
+```
+
+![Alt text](Resources/)
+_Comparaison du temps d'execution du programme en mode parallel atomique et en mode parallèle en reduction._ 
+
+Un autre point d'optimisation est d'augmenter le temps d'execution de chaque thread afin de diminuer la quantité de branches dans l'arbre de réduction. En effet, si le temps d'execution de chaque thread est inférieur au temps pour faire une réduction, il est intéressant de regrouper les taches par thread afin que l'arbre à la fin soit moins dense. Cependant, il reste difficil d'identifier le temps exacte passé pour une réduction, ainsi un teste empirique a été éffectué pour desmistifier le sujet.
+
+![Alt text](Resources/)
+_Comparaison du temps d'execution du programme en mode parallel en reduction et en mode parallèle en reduction fractionné._  
+
+## Partie 2  
 
 Un example de code se trouve si dessous. Si vous voulez regarder la totalité des implementations, veillez se rendre au dossier **Part1**.
 ```c++

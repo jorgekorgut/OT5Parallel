@@ -1,21 +1,25 @@
 PART1_SRC=Part1
 PART2_SRC=Part2
+CUDA_SRC=Cuda
 BIN=Executables
 
+#Compiling windows in linux
+#GCC=x86_64-w64-mingw32-g++
+GCC=g++
+NVCC=/usr/local/cuda-12.2/bin/nvcc
+#Profiler UI
+#/opt/nvidia/nsight-compute/2023.2.2/ncu-ui
+
 #Compiling for windows
-GCC=x86_64-w64-mingw32-g++
-LIBS=-static-libstdc++ -static-libgcc -lgomp -static
-
-#Compiling for linux
-#GCC=g++
-
-
-main : Part1 Part2
+#GCC=x86_64-w64-mingw32-g++
+#LIBS=-static-libstdc++ -static-libgcc -lgomp -static
+LIBS_CUDA = -arch=sm_61
+main : Part1 Part2 Cuda
 	@echo Done
 
 Part1 : $(BIN)/naive.o $(BIN)/reduce.o $(BIN)/atomic.o $(BIN)/divided.o
 	@echo Part1 Compiled
-
+ 
 $(BIN)/naive.o: $(PART1_SRC)/tp_openmp_part_1_pi.cpp
 	$(GCC) -o $(BIN)/naive.o $(PART1_SRC)/tp_openmp_part_1_pi.cpp -fopenmp -O3 $(LIBS) -g -march=native
 $(BIN)/reduce.o: $(PART1_SRC)/tp_openmp_part_1_pi_impl_reduce.cpp
@@ -34,3 +38,14 @@ $(BIN)/vector_parallel.o: $(PART2_SRC)/tp_openmp_part_2_vector_parallel.cpp
 	$(GCC) -o $(BIN)/vector_parallel.o $(PART2_SRC)/tp_openmp_part_2_vector_parallel.cpp -fopenmp $(LIBS) -O3  -march=native
 $(BIN)/vector_simd.o: $(PART2_SRC)/tp_openmp_part_2_vector_simd.cpp
 	$(GCC) -o $(BIN)/vector_simd.o $(PART2_SRC)/tp_openmp_part_2_vector_simd.cpp -fopenmp $(LIBS) -O3  -march=native
+
+Cuda : $(BIN)/cuda_pi.o $(BIN)/cuda_pi_reduction.o 
+
+$(BIN)/cuda_pi.o: $(CUDA_SRC)/tp_openmp_part_1_pi.cu
+	$(NVCC) -o $(BIN)/cuda_pi.o $(CUDA_SRC)/tp_openmp_part_1_pi.cu -O3 $(LIBS_CUDA) 
+
+$(BIN)/cuda_pi_reduction.o: $(CUDA_SRC)/tp_openmp_part_1_pi_reduction.cu
+	$(NVCC) -o $(BIN)/cuda_pi_reduction.o $(CUDA_SRC)/tp_openmp_part_1_pi_reduction.cu -O2 $(LIBS_CUDA) -G
+
+$(BIN)/cuda_pi_full_reduction.o: $(CUDA_SRC)/tp_openmp_part_1_pi_full_reduction.cu
+	$(NVCC) -o $(BIN)/cuda_pi_full_reduction.o $(CUDA_SRC)/tp_openmp_part_1_pi_full_reduction.cu -O3 $(LIBS_CUDA) 
