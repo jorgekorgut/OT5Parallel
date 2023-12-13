@@ -70,20 +70,6 @@ Un autre point d'optimisation est d'augmenter le temps d'execution de chaque thr
 ![Alt text](Resources/)
 _Comparaison du temps d'execution du programme en mode parallel en reduction et en mode parallèle en reduction fractionné._  
 
-## Partie 2  
-
-Un example de code se trouve si dessous. Si vous voulez regarder la totalité des implementations, veillez se rendre au dossier **Part1**.
-```c++
-#pragma omp parallel for shared(sum) num_threads(num_cores)
-for (i=1;i<= num_steps; i++)
-{
-    x = (i-0.5)*step;
-    x = 4.0/(1.0+x*x);
-    #pragma omp atomic
-	sum = sum + x;
-}
-```
-
 
 ## Partie 2
 ![Alt text](Resources/Part2_Vect_seq.png)  
