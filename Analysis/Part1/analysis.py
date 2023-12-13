@@ -7,36 +7,99 @@ import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
 
-df = pd.read_csv('stats.csv',header=None,names=['version','nbcore','num_steps','runtime'],dtype={
-                     'version': str,
+df = pd.read_csv('Analysis/Part1/stats.csv',header=None,names=['input','nbcore','num_steps','runtime'],dtype={
+                     'input': str,
                      'nbcore': int,
                      'num_steps' : int,
                      'runtime' : float
                  })
 
-color_num_steps = {1e6 : "blue", 1e8 : "red", 1e10 : "green", 1e12 : "black"}
+subplot, axis = plt.subplots(1)
 
-subplot, axis = plt.subplots(2)
+input_interation_values = df['input'].unique()
 
-for num_steps in df['num_steps']:
+colors_array = ['blue', 'red', 'yellow', 'green', 'black', 'magenta', 'cyan', 'orange', 'brown', 'black', 'black']
 
-    df_plot = df[(df['num_steps'] == int(num_steps))]
-    df_plot = df_plot[df_plot['version'] == "divided"]
-    
-    mean_stats = df_plot.groupby(['num_steps','version','nbcore']).mean().reset_index()
-    
-    axis[0].plot(mean_stats['nbcore'], mean_stats['runtime'],linestyle="solid",color=color_num_steps[num_steps])
-    axis[0].set_yscale('log')
-    axis[0].set_xscale('log')
-    axis[0].scatter(df_plot['nbcore'], df_plot['runtime'],color=color_num_steps[num_steps])
+def plotCoresGraph(key_input) :
+    for index, input in enumerate(input_interation_values):
+        df_plot = df[(df['input'] == input)]
+        df_plot = df_plot[df_plot['version'] == key_input]
+        
+        mean_stats = df_plot.groupby(['input','nbcore']).mean().reset_index()
+        
+        axis.plot(mean_stats['nbcore'],
+        mean_stats['runtime'],
+        linestyle="solid",
+        color=colors_array[index])
 
-    df_plot = df[(df['num_steps'] == num_steps) & (df['version'] == "reduce")]
-    mean_stats = df_plot.groupby(['num_steps','version','nbcore']).mean().reset_index()
+        axis.set_xlabel('nbcores (number)')
+        axis.set_ylabel('runtime (log(seconds))')
+        axis.set_yscale('log')
+
+
+    # Scatter plot
+    for index, input in enumerate(input_interation_values):
+        df_plot = df[(df['input'] == input)]
+        df_plot = df_plot[df_plot['version'] == key_input]
+
+        axis.scatter(df_plot['nbcore'], 
+        df_plot['runtime'],
+        color=colors_array[index])
+        axis.set_xlabel('nbcores (number)')
+        axis.set_ylabel('runtime (log(seconds))')
+        axis.set_yscale('log')
     
-    axis[1].plot(mean_stats['nbcore'], mean_stats['runtime'],linestyle="dashed",color=color_num_steps[num_steps])
-    axis[1].set_yscale('log')
-    axis[1].set_xscale('log')
-    axis[1].scatter(df_plot['nbcore'], df_plot['runtime'],color=color_num_steps[num_steps])
+    plt.title(key_input)
+    plt.legend(input_interation_values)
+    plt.show()
+
+def plotCompare(key_input1, key_input2, input_iteration_to_compare) :
+    for index, input in enumerate(input_interation_values):
+        if input in input_iteration_to_compare :
+            df_plot = df[(df['input'] == key_input1)]
+            
+            mean_stats = df_plot.groupby(['input','nbcore']).mean().reset_index()
+            
+            axis.plot(mean_stats['nbcore'],
+            mean_stats['runtime'],
+            linestyle="solid",
+            color=colors_array[index])
+
+
+            df_plot = df[(df['input'] == key_input2)]
+            
+            mean_stats = df_plot.groupby(['input','nbcore']).mean().reset_index()
+            
+            axis.plot(mean_stats['nbcore'],
+            mean_stats['runtime'],
+            linestyle="dashed",
+            color=colors_array[index])
+
+            axis.set_xlabel('nbcores (number)')
+            axis.set_ylabel('runtime (log(seconds))')
+            axis.set_yscale('log')
+    plt.title(input_iteration_to_compare)
+    plt.legend([key_input1, key_input2])
+    plt.show()
+
+plotCompare("reduce", "divided", [input_interation_values[-1]])
+
+# for num_steps in df['num_steps']:
+
+#     df_plot = df[(df['num_steps'] == int(num_steps))]
+#     df_plot = df_plot[df_plot['version'] == "divided"]
     
-plt.legend()
-plt.show()
+#     mean_stats = df_plot.groupby(['num_steps','version','nbcore']).mean().reset_index()
+    
+#     axis[0].plot(mean_stats['nbcore'], mean_stats['runtime'],linestyle="solid",color=color_num_steps[num_steps])
+#     axis[0].set_yscale('log')
+#     axis[0].set_xscale('log')
+#     axis[0].scatter(df_plot['nbcore'], df_plot['runtime'],color=color_num_steps[num_steps])
+
+#     df_plot = df[(df['num_steps'] == num_steps) & (df['version'] == "reduce")]
+#     mean_stats = df_plot.groupby(['num_steps','version','nbcore']).mean().reset_index()
+    
+#     axis[1].plot(mean_stats['nbcore'], mean_stats['runtime'],linestyle="dashed",color=color_num_steps[num_steps])
+#     axis[1].set_yscale('log')
+#     axis[1].set_xscale('log')
+#     axis[1].scatter(df_plot['nbcore'], df_plot['runtime'],color=color_num_steps[num_steps])

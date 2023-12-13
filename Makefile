@@ -2,11 +2,12 @@ PART1_SRC=Part1
 PART2_SRC=Part2
 BIN=Executables
 
-#Compiling windows/linux
+#Compiling for windows
 GCC=x86_64-w64-mingw32-g++
-#GCC=g++
-
 LIBS=-static-libstdc++ -static-libgcc -lgomp -static
+
+#Compiling for linux
+#GCC=g++
 
 
 main : Part1 Part2
@@ -29,9 +30,7 @@ Part2 : $(BIN)/vector_seq.o $(BIN)/vector_parallel.o $(BIN)/vector_simd.o
 
 $(BIN)/vector_seq.o: $(PART2_SRC)/tp_openmp_part_2_vector.cpp
 	$(GCC) -o $(BIN)/vector_seq.o $(PART2_SRC)/tp_openmp_part_2_vector.cpp -fopenmp $(LIBS) -O3 -g -march=native
-
 $(BIN)/vector_parallel.o: $(PART2_SRC)/tp_openmp_part_2_vector_parallel.cpp
 	$(GCC) -o $(BIN)/vector_parallel.o $(PART2_SRC)/tp_openmp_part_2_vector_parallel.cpp -fopenmp $(LIBS) -O3  -march=native
-
 $(BIN)/vector_simd.o: $(PART2_SRC)/tp_openmp_part_2_vector_simd.cpp
 	$(GCC) -o $(BIN)/vector_simd.o $(PART2_SRC)/tp_openmp_part_2_vector_simd.cpp -fopenmp $(LIBS) -O3  -march=native
