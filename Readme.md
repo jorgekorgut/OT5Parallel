@@ -4,7 +4,7 @@
 Mario CASTILLON  
 Jorge KORGUT Junior
 
-## Architecture du projet
+## Architecture du projet OpenMP
 
 * Dans la racine nous avons un Makefile qui compile tous les executables des differentes parties.  
 >Pour compiler les sources
@@ -12,14 +12,24 @@ Jorge KORGUT Junior
 
 
 * Les executables sont générés dans le dossier **/Executables** 
-* Pour acceder aux codes sources des parties, les dossiers **/Parti#** sont disponibles dans la racine du projet.  
+* Pour acceder aux codes sources des parties, les dossiers **/Part#** sont disponibles dans la racine du projet. Pour les sources CUDA ils se trouvent sur le dossier **/Cuda**  
 * Pour executer les scripts pythons d'analyses, veillez exécuter dans la racine du projet :  
 
 >Pour générer un fichier stats.csv avec les données d'execution des programmes  
-    ```python3 ./Analysis/Part#/evaluation.py```  
+    ```python3 ./Analysis/Part1/evaluation.py``` 
+    ```python3 ./Analysis/Part2/evaluation.py``` 
+    ```python3 ./Analysis/Cuda/evaluation.py```   
 
 >Pour afficher un graphe avec les données de performance  
-    ```python3 ./Analysis/Part#/analysis.py```  
+    ```python3 ./Analysis/Part1/analysis.py```   
+    ```python3 ./Analysis/Part2/analysis.py``` 
+    ```python3 ./Analysis/Cuda/analysis.py```  
+
+## Lien d'instalation CUDA
+
+>Install cuda SDK
+https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&Distribution=WSL-Ubuntu&target_version=2.0&target_type=deb_local
+
 
 ## Introduction OpenMP 
 
@@ -104,3 +114,43 @@ Une autre idée est d'implementer les optimisations du type SIMD. L'idée est de
 _Representation graphique de la compairaison du temps d'execution de l'algorithme de somme et multiplication des matrices en parallel et avec le SIMD._  
 
 Avec le graphique, nous pouvons conclure que l'implementation du SIMD n'a pas presenté d'éffets significatifs pour diminuer le temps d'exécution du programme. Cela peut avoir comme raison, la non compatibilité du compilateur ou un code pas adapté pour ce type d'optimisation.
+
+## Introduction CUDA
+Après avoir obtenu des notables gain de performance avec la parallelisation du processeur en utilisant OpenMP, le prochain pas est naturellement de partir vers la paralellisation en masse avec le GPU. Plusieurs marques emergent dans le marché et standards de programmation commencent à ce mettre en place. Cependant, en 2023 la petite communauté des programmeurs reste limité par des langages proprietaires si l'objectif est l'optimisation fine des tâches.
+
+Afin de pouvoir comprendre la suite de ce rapport, quelques notions clefs doivent être clarifiés.
+
+### Threads(Threads)
+Un thread c'est une répresentation abstraite de l'execution du kernel. C'est à dire, un bout de code qui a été compilé pour être executé dans un apareil precis.  
+```c++
+    int unique_id = blockDim.x * blockIdx.x + threadIdx.x;
+```  
+ 
+### Bloques(Blocks)
+Un bloque répresente un groupe de threads qui seront exécutés soit en serie soit en parallèle. En 2023, le bloque est limité à 1024 Threads. La particularité d'un bloque est que les threads qui tournent sur lui peuvent être à la fois synchronisé et à la fois partager une même memoire plus rapide que la memoire global.
+
+
+### Grille(Grid)
+Une grille est un ensemble de blocks. Le nombre de threqds étant limité, la notion de grille permet la parallelisation massive. Tout simplement ce concept, permet l'utilisation de tous multiprocesseurs et l'illusion d'une infinité de threads.
+
+
+### Hierarchie en memoire
+Lors de la programmation GPU, la metrise de la mémoire devient encore plus critique que dans la programmation classique. Vu la limitation du transfert des données, les gains en performance sont rapidement limités par la nécéssité du transfert des données. Afin de contourner ce problème de transfert, la technologie actuelle (2023) expose dans differents niveaux de capacité, une hiérarchie de mémoire. Celles les plus vites, mais plus chères et plus petites, plus proche de leur zone d'actuation et celles moins couteuses, plus grandes mais plus lentes, plus eloignés.
+
+![Alt text](Resources/memory-hierarchy-in-gpus.png)  
+_Illustration de la mémoire dans un GPU avec son hierarchie qui atteint jusqu'à la mémoire global. ref: https://developer.nvidia.com/blog/cuda-refresher-cuda-programming-model/_  
+
+
+## Cuda
+
+Le programme qui borne la partie CUDA de ce rapport est celui utilisé auparavant de l'approximation de PI. Dans un premier temps, le code OpenMP est porté vers CUDA. Ce processus peut être facilement enoncable, cependant ne doit pas être une étapa négligeable lors d'une extimation de charge d'un projet d'optimisation.
+
+Les méta-paramètres de la première execution sont : **1 Thread par bloque**, **N Bloques** et chaque Thread s'occupe d'une certaine plage des données.
+
+
+
+
+
+## References
+
+https://en.wikipedia.org/wiki/Thread_block_(CUDA_programming)

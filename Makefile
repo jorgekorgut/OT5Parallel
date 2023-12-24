@@ -39,7 +39,7 @@ $(BIN)/vector_parallel.o: $(PART2_SRC)/tp_openmp_part_2_vector_parallel.cpp
 $(BIN)/vector_simd.o: $(PART2_SRC)/tp_openmp_part_2_vector_simd.cpp
 	$(GCC) -o $(BIN)/vector_simd.o $(PART2_SRC)/tp_openmp_part_2_vector_simd.cpp -fopenmp $(LIBS) -O3  -march=native
 
-Cuda : $(BIN)/cuda_pi.o $(BIN)/cuda_pi_reduction.o 
+Cuda : $(BIN)/cuda_pi.o $(BIN)/cuda_pi_reduction.o $(BIN)/cuda_pi_full_reduction.o
 
 $(BIN)/cuda_pi.o: $(CUDA_SRC)/tp_openmp_part_1_pi.cu
 	$(NVCC) -o $(BIN)/cuda_pi.o $(CUDA_SRC)/tp_openmp_part_1_pi.cu -O3 $(LIBS_CUDA) 

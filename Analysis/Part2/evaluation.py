@@ -50,8 +50,6 @@ for nbcores in nb_core:
 
 with open('Analysis/Part2/stats.csv', 'w', newline='') as file:
      writer = csv.writer(file)
-     #writer.writerow(['version','nbcore','num_steps','runtime'])
-     sumReduced = 0
      for value_index in values_index_range:
         for ncores in nb_core:
             for repeat in repeats:
