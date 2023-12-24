@@ -1,7 +1,7 @@
 # OT5 : Calcul parallèl
 
 ## Membres
-Mario CASTILLON
+Mario CASTILLON  
 Jorge KORGUT Junior
 
 ## Architecture du projet
