@@ -19,15 +19,15 @@ Jorge KORGUT Junior
 
 
 >Pour générer un fichier stats.csv avec les données d'exécution des programmes  
-    ```python3 ./Analysis/Part1/evaluation.py```
-    ```python3 ./Analysis/Part2/evaluation.py```
+    ```python3 ./Analysis/Part1/evaluation.py```  
+    ```python3 ./Analysis/Part2/evaluation.py```  
     ```python3 ./Analysis/Cuda/evaluation.py```  
 
 
 >Pour afficher un graphe avec les données de performance  
     ```python3 ./Analysis/Part1/analysis.py```  
-    ```python3 ./Analysis/Part2/analysis.py```
-    ```python3 ./Analysis/Cuda/analysis.py```  
+    ```python3 ./Analysis/Part2/analysis.py```  
+    ```python3 ./Analysis/Cuda/analysis.py```   
 
 
 ## Lien d'installation CUDA
