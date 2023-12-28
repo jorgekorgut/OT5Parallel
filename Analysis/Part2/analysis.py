@@ -90,6 +90,6 @@ def plotCompare(key_input1, key_input2, input_iteration_to_compare) :
 
 #plotCompare("sequential", "parallel", [input_interation_values[-1]])
 
-plotCompare("simd", "parallel", [input_interation_values[-1]])
+#plotCompare("simd", "parallel", [input_interation_values[-1]])
 
 #plotCoresGraph("simd")
