@@ -91,7 +91,7 @@ De plus on rajoute les mots clefs :
 Pour éviter les cas de concurrence qui viennent attaquer nos résultats.
 
 
-![Alt text](Resources/Part1_Seq_Atomic.png)
+![Alt text](Resources/Part1_Seq_Atomic.png)  
 _Comparaison du temps d'exécution du programme en mode séquentiel et en mode parallèle atomique._
 
 
@@ -104,14 +104,14 @@ Afin d'optimiser ce processus et parce que que notre cas particulier nous permet
 ```
 
 
-![Alt text](Resources/Part1_Seq_Reduce.png)
+![Alt text](Resources/Part1_Seq_Reduce.png)  
 _Comparaison du temps d'exécution du programme en mode séquentiel et en mode parallèle en réduction._
 
 
 Un autre point d'optimisation est d'augmenter le temps d'exécution de chaque thread afin de diminuer la quantité de branches dans l'arbre de réduction. En effet, si le temps d'exécution de chaque thread est inférieur au temps pour faire une réduction, il est intéressant de regrouper les tâches par thread afin que l'arbre à la fin soit moins dense. Cependant, il reste difficile d'identifier le temps exact passé pour une réduction, ainsi un test empirique a été effectué pour démystifier le sujet.
 
 
-![Alt text](Resources/Part1_Reduce_Divided.png)
+![Alt text](Resources/Part1_Reduce_Divided.png)  
 _Comparaison du temps d'exécution du programme en mode parallèle en réduction et en mode parallèle en réduction fractionné._  
 
 
@@ -119,7 +119,7 @@ En effet, nous n'avons pas constaté une augmentation dans le temps d'exécution
 
 
 ## Partie 2
-![Alt text](Resources/Part2_Vect_seq.png)  
+![Alt text](Resources/Part2_Vect_seq.png)    
 _Représentation graphique du temps d'exécution de l'algorithme de somme et multiplication des matrices en séquence._  
 
 
@@ -132,28 +132,28 @@ _Analyse des hotspots de l'algorithme séquentiel avec l'outil VTune profile_
 Avec l'image, nous pouvons voir qu'une bonne partie du temps d'exécution de notre programme est passé dans l'affectation de la matrice de départ et dans les opérations arithmétiques matricielles.  
 
 
-![Alt text](Resources/Seq1Thread.PNG)
+![Alt text](Resources/Seq1Thread.PNG)  
 _Affichage du nombre de Threads utilisés dans l'exécution de l'application_  
 
 
 De plus, nous pouvons voir que juste 1 cœur est utilisé lors de l'exécution du programme. Ainsi une première piste d'optimisation est la parallélisation de ces tâches.  
 
 
-![Alt text](Resources/Part2_Vect_parallel.png)
+![Alt text](Resources/Part2_Vect_parallel.png)  
 _Représentation graphique du temps d'exécution de l'algorithme de somme et multiplication des matrices en parallel._  
 
 
 Au départ, nous observons une diminution du temps d'exécution jusqu'à 8 cores (nombre des cœurs de la machine de test). Après ce nombre, le déroulement du programme prend plus de temps principalement à cause de l'initialisation des instances parallèles et de l'ordonnancement des tâches.
 
 
-![Alt text](Resources/Compare_Sequential_Parallel.png)
+![Alt text](Resources/Compare_Sequential_Parallel.png)  
 _Représentation graphique de la comparaison du temps d'exécution de l'algorithme de somme et multiplication des matrices en parallèle et en séquence._  
 
 
 Une autre idée est d'implémenter les optimisations du type SIMD. L'idée est de donner des directives au compilateur afin qu'il puisse utiliser le hardware spécifique et ainsi augmenter la vitesse d'exécution du programme.
 
 
-![Alt text](Resources/Compare_SIMD_Parallel.png)
+![Alt text](Resources/Compare_SIMD_Parallel.png)  
 _Représentation graphique de la comparaison du temps d'exécution de l'algorithme de somme et multiplication des matrices en parallèle et avec le SIMD._  
 
 
@@ -183,12 +183,12 @@ Une grille est un ensemble de blocs. Le nombre de threads étant limité, la not
 Lors de la programmation GPU, la maîtrise de la mémoire devient encore plus critique que dans la programmation classique. Vu la limitation du transfert des données, les gains en performance sont rapidement limités par la nécessité du transfert des données. Afin de contourner ce problème de transfert, la technologie actuelle (2023) expose dans différents niveaux de capacité, une hiérarchie de mémoire. Celles les plus vites, mais plus chères et plus petites, plus proches de leur zone d'actuation et celles moins coûteuses, plus grandes mais plus lentes, plus éloignées.
 
 
-![Alt text](Resources/memory-hierarchy-in-gpus.png)  
+![Alt text](Resources/memory-hierarchy-in-gpus.png)    
 _Illustration de la mémoire dans un GPU avec sa hiérarchie qui atteint jusqu'à la mémoire globale. ref:_ https://developer.nvidia.com/blog/cuda-refresher-cuda-programming-model/
 
 
 ## Cuda
-Le programme qui borne la partie CUDA de ce rapport est celui utilisé auparavant de l'approximation de PI. Dans un premier temps, le code OpenMP est porté vers CUDA. Ce processus peut être facilement énonçable, cependant ne doit pas être une étape négligeable lors d'une estimation de charge d'un projet d'optimisation.
+Le programme qui sera utilisé dans la partie CUDA de ce rapport est celui utilisé auparavant de l'approximation de PI. Dans un premier temps, le code OpenMP est porté vers CUDA. Ce processus peut être facilement énonçable, cependant ne doit pas être une étape négligeable lors d'une estimation de charge d'un projet d'optimisation.
 
 
 ### Les versions
